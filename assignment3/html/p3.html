@@ -1,0 +1,206 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>p3</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-09-23"><meta name="DC.source" content="p3.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><pre class="codeinput">clear
+clc
+close <span class="string">all</span>
+
+im = imread(<span class="string">'/home/sajal/3-1/DIP/Assignments/assignment3/green.png'</span>);
+figure,imshow(im)
+imfore = zeros(size(im,1),size(im,2));
+imback = imread(<span class="string">'/home/sajal/3-1/DIP/Assignments/assignment3/background.jpg'</span>);
+imback = imresize(imback,size(imfore));
+
+<span class="comment">%figure,imshow(im);</span>
+imf = imback;
+imback = rgb2ycbcr(imback);
+im = rgb2ycbcr(im);
+imf = rgb2ycbcr(imf);
+
+imref = im(1:200,1:200,:);
+THRESH = 2000;
+
+meanval = zeros(1,3);
+meanval(1) = mean2(imref(:,:,1));
+meanval(2) = mean2(imref(:,:,2));
+meanval(3) = mean2(imref(:,:,3));
+
+
+imres = reshape((im),size(im,1)*size(im,2),3);
+imforeres = reshape((imfore),size(imfore,1)*size(imfore,2),1);
+
+meanval = repmat(meanval,size(imres,1),1);
+
+diff = double(imres)-meanval;
+
+sqdiff = diff.^2;
+
+dist = sum(sqdiff,2);
+
+fore = find(dist &gt; THRESH);
+back = find(dist &lt;= THRESH);
+
+[x y] = ind2sub(size(imfore),fore);
+[p q] = ind2sub(size(imfore),back);
+
+<span class="comment">% imf = imback;</span>
+<span class="comment">% imback = rgb2ycbcr(imback);</span>
+<span class="comment">% im = rgb2ycbcr(im);</span>
+<span class="comment">% imf = rgb2ycbcr(imf);</span>
+<span class="comment">% imf = zeros(size(im));</span>
+<span class="comment">% imf = rgb2ycbcr(imf);</span>
+
+<span class="keyword">for</span> i=1:size(x,1)
+    imf(x(i),y(i))=0.95*im(x(i),y(i))+0.05*imf(x(i),y(i));
+<span class="keyword">end</span>
+
+<span class="comment">% for j=1:size(p,1)</span>
+<span class="comment">%     imf(p(j),q(j))=imback(p(j),q(j));</span>
+<span class="comment">% end</span>
+
+imfinal = ycbcr2rgb(imf);
+figure,imshow(imfinal)
+
+
+<span class="comment">%imf(x,y) = im(x,y);</span>
+
+<span class="comment">% imforeres(fore)=255;</span>
+<span class="comment">%</span>
+<span class="comment">% imfore2 = reshape(imforeres,size(imfore,1),size(imfore,2));</span>
+<span class="comment">%</span>
+<span class="comment">% figure,imshow(imfore2,[])</span>
+</pre><pre class="codeoutput">Warning: Image is too big to fit on screen; displaying at 67% 
+Warning: Image is too big to fit on screen; displaying at 67% 
+</pre><img vspace="5" hspace="5" src="p3_01.png" alt=""> <img vspace="5" hspace="5" src="p3_02.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+clear
+clc
+close all
+
+im = imread('/home/sajal/3-1/DIP/Assignments/assignment3/green.png');
+figure,imshow(im)
+imfore = zeros(size(im,1),size(im,2));
+imback = imread('/home/sajal/3-1/DIP/Assignments/assignment3/background.jpg');
+imback = imresize(imback,size(imfore));
+
+%figure,imshow(im);
+imf = imback;
+imback = rgb2ycbcr(imback);
+im = rgb2ycbcr(im);
+imf = rgb2ycbcr(imf);
+
+imref = im(1:200,1:200,:);
+THRESH = 2000;
+
+meanval = zeros(1,3);
+meanval(1) = mean2(imref(:,:,1));
+meanval(2) = mean2(imref(:,:,2));
+meanval(3) = mean2(imref(:,:,3));
+
+
+imres = reshape((im),size(im,1)*size(im,2),3);
+imforeres = reshape((imfore),size(imfore,1)*size(imfore,2),1);
+
+meanval = repmat(meanval,size(imres,1),1);
+
+diff = double(imres)-meanval;
+
+sqdiff = diff.^2;
+
+dist = sum(sqdiff,2);
+
+fore = find(dist > THRESH);
+back = find(dist <= THRESH);
+
+[x y] = ind2sub(size(imfore),fore);
+[p q] = ind2sub(size(imfore),back);
+
+% imf = imback;
+% imback = rgb2ycbcr(imback);
+% im = rgb2ycbcr(im);
+% imf = rgb2ycbcr(imf);
+% imf = zeros(size(im));
+% imf = rgb2ycbcr(imf);
+
+for i=1:size(x,1)
+    imf(x(i),y(i))=0.95*im(x(i),y(i))+0.05*imf(x(i),y(i));
+end
+
+% for j=1:size(p,1)
+%     imf(p(j),q(j))=imback(p(j),q(j));
+% end
+
+imfinal = ycbcr2rgb(imf);
+figure,imshow(imfinal)
+
+
+%imf(x,y) = im(x,y);
+
+% imforeres(fore)=255;
+% 
+% imfore2 = reshape(imforeres,size(imfore,1),size(imfore,2));
+% 
+% figure,imshow(imfore2,[])
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
